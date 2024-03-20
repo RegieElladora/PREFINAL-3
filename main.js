@@ -1,297 +1,241 @@
-const btnInsertUpdate = document.getElementById("btnInsertUpdate");
-const btnClearItems = document.getElementById("btnClearItems");
-const btnClear = document.getElementById("btnClear");
-const tblRecords = document.getElementById("tblRecords");
-const sortselect = document.getElementById("sort");
-const sortname = document.getElementById("sortname");
-const btnsave = document.getElementById("btnsave");
+const insertUpdateBtn = document.getElementById("btnInsertUpdate");
+const clearRecordsBtn = document.getElementById("btnClearRecords");
+const clearFieldsBtn = document.getElementById("btnClearFields");
+const saveBtn = document.getElementById("btnSaveData");
+const tableRecords = document.getElementById("tableRecords");
+const sortCriteriaDropdown = document.getElementById("sortCriteriaDropdown");
+const sortOrderDropdown = document.getElementById("sortOrderDropdown");
 
-let arrRecords = new Array();
-const tblTHsLabels = [
-  "First Name",
-  "Middle Name",
-  "Last Name",
-  "Age",
-  "Action",
-];
+let recordsArray = JSON.parse(localStorage.getItem('records')) || [];
 
-if (arrRecords.length == 0) {
-  document.getElementById("status").style.display = "inline";
-  document.getElementById("status").innerHTML = "No Records...";
-} else {
-  document.getElementById("status").style.display = "none";
-}
+const tableHeaderLabels = ["First Name", "Middle Name", "Last Name", "Age", "Action"];
 
-//get fromm loc storge
-const storedRecordsJSON = localStorage.getItem("records");
-if (storedRecordsJSON) {
-  arrRecords = JSON.parse(storedRecordsJSON);
-}
 iterateRecords();
 
-//show buttons if nay sulod loc storge
-console.log("listen arrRecords");
-if (arrRecords.length === 0) {
-  console.log("arrRecords empty");
-} else {
-  console.log("arrRecords not empty");
-  document.getElementById("btnClearItems").style.display = "inline";
-  document.getElementById("btnsave").style.display = "inline";
-  document.getElementById("labelsort").style.display = "inline";
-  document.getElementById("sortname").style.display = "inline";
-  document.getElementById("sort").style.display = "inline";
-}
-
-btnInsertUpdate.addEventListener("click", () => {
-  const inputTxt = document.getElementsByTagName("input");
-
-  if (btnInsertUpdate.value == "insert") {
-    for (const txt of inputTxt) {
-      if (txt.value == " " || txt.value == "") {
-        alert("Please complete all the text inputs!");
-        return;
-      }
-    }
-
-    let infoRecord = {
-      fname: inputTxt[0].value,
-      mname: inputTxt[1].value,
-      lname: inputTxt[2].value,
-      age: parseInt(inputTxt[3].value),
-    };
-
-    for (const txt of inputTxt) {
-      txt.value = "";
-    }
-
-    arrRecords.push(infoRecord);
-
-    iterateRecords();
-    sorting();
-
-    console.log(inputTxt);
-    console.log(infoRecord);
-    console.log(arrRecords);
-  } else {
-    for (const txt of inputTxt) {
-      if (txt.value == " " || txt.value == "") {
-        alert("Please complete all the text inputs!");
-        return;
-      }
-    }
-
-    arrRecords[parseInt(btnInsertUpdate.value)].fname = inputTxt[0].value;
-    arrRecords[parseInt(btnInsertUpdate.value)].mname = inputTxt[1].value;
-    arrRecords[parseInt(btnInsertUpdate.value)].lname = inputTxt[2].value;
-    arrRecords[parseInt(btnInsertUpdate.value)].age = parseInt(
-      inputTxt[3].value
-    );
-
-    iterateRecords();
-    sorting();
-
-    for (const txt of inputTxt) {
-      txt.value = "";
-    }
-
-    btnInsertUpdate.innerHTML = "Insert";
-    btnInsertUpdate.value = "insert";
-  }
-
-  document.getElementById("btnClearItems").style.display = "inline";
-  document.getElementById("btnsave").style.display = "inline";
-  document.getElementById("labelsort").style.display = "inline";
-  document.getElementById("sortname").style.display = "inline";
-  document.getElementById("sort").style.display = "inline";
-});
-
-btnClear.addEventListener("click", () => {
-  const inputTxt = document.getElementsByTagName("input");
-
-  for (const txt of inputTxt) {
-    txt.value = "";
-  }
-
-  btnInsertUpdate.innerHTML = "Insert";
-  btnInsertUpdate.value = "insert";
-});
-
-btnClearItems.addEventListener("click", () => {
-  arrRecords = [];
-
-  while (tblRecords.hasChildNodes()) {
-    tblRecords.removeChild(tblRecords.firstChild);
-  }
-
-  document.getElementById("status").style.display = "inline";
-  document.getElementById("status").innerHTML = "No Records...";
-
-  btnInsertUpdate.innerHTML = "Insert";
-  btnInsertUpdate.value = "insert";
-
-  document.getElementById("btnClearItems").style.display = "none";
-  document.getElementById("btnsave").style.display = "none";
-  document.getElementById("labelsort").style.display = "none";
-  document.getElementById("sortname").style.display = "none";
-  document.getElementById("sort").style.display = "none";
-
-  sortselect.value = "select";
-  sortname.value = "select";
-  saving();
-});
-
-btnsave.addEventListener("click", () => {
-  saving();
-});
-
-sortselect.addEventListener("change", () => {
-  sorting();
-});
-
-sortname.addEventListener("change", () => {
-  sorting();
-});
-
-function saving() {
-  const arrRecordsJSON = JSON.stringify(arrRecords);
-  localStorage.setItem("records", arrRecordsJSON);
-}
-
-function sorting() {
-  if (sortname.value == "fname") {
-    sorter("fname");
-  } else if (sortname.value == "lname") {
-    sorter("lname");
-  }
-}
-
-function sorter(name) {
-  if (sortselect.value == "asc") {
-    arrRecords.sort((a, b) => {
-      const nameA = a[name].toLowerCase();
-      const nameB = b[name].toLowerCase();
-      if (nameA < nameB) return -1;
-      if (nameA > nameB) return 1;
-      return 0;
-    });
-  } else if (sortselect.value == "desc") {
-    arrRecords.sort((a, b) => {
-      const nameA = a[name].toLowerCase();
-      const nameB = b[name].toLowerCase();
-      if (nameA < nameB) return 1;
-      if (nameA > nameB) return -1;
-      return 0;
-    });
-  }
-  iterateRecords();
-}
-function iterateRecords() {
-
-
-  while (tblRecords.hasChildNodes()) {
-    tblRecords.removeChild(tblRecords.firstChild);
-  }
-
-  if (!(arrRecords.length == 0)) {
-    document.getElementById("status").style.display = "none";
-
-    const tblHeaderRow = document.createElement("tr");
-    const tblHeader = document.createElement("thead");
-    tblHeaderRow.style.borderTop = "1px solid black";
-    tblHeaderRow.style.borderBottom = "1px solid black";
-
-    //Generate 4 Theads
-    for (let i = 0; i < 5; i++) {
-      const tblTHs = document.createElement("th");
-      tblTHs.style.padding = "5px";
-
-      if (i != 4) {
-        tblTHs.style.borderRight = "1px solid black";
-      }
-
-      tblTHs.innerHTML = tblTHsLabels[i];
-      tblHeaderRow.appendChild(tblTHs);
-    }
-
-    tblHeader.appendChild(tblHeaderRow);
-    tblRecords.appendChild(tblHeader);
-
-    //Generate Records
-    const tblBody = document.createElement("tbody");
-
-    arrRecords.forEach((rec, i) => {
-      const tblRow = document.createElement("tr");
-      const tbdataFname = document.createElement("td");
-      const tbdataMname = document.createElement("td");
-      const tbdataLname = document.createElement("td");
-      const tbdataAge = document.createElement("td");
-      const tbdataActionBtn = document.createElement("td");
-      const btnDelete = document.createElement("button");
-      const btnUpdate = document.createElement("button");
-
-      tbdataFname.style.borderRight = "1px solid black";
-      tbdataFname.style.padding = "10px";
-
-      tbdataMname.style.borderRight = "1px solid black";
-      tbdataMname.style.padding = "10px";
-
-      tbdataLname.style.borderRight = "1px solid black";
-      tbdataLname.style.padding = "10px";
-
-      tbdataAge.style.borderRight = "1px solid black";
-      tbdataAge.style.padding = "10px";
-
-      tbdataActionBtn.style.padding = "10px";
-
-      tblRow.style.borderBottom = "1px solid black";
-
-      tbdataFname.innerHTML = rec.fname;
-      tbdataMname.innerHTML = rec.mname;
-      tbdataLname.innerHTML = rec.lname;
-      tbdataAge.innerHTML = rec.age;
-
-      btnDelete.innerHTML = "Delete";
-      btnDelete.setAttribute("onclick", `deleteData(${i})`);
-      btnDelete.style.marginRight = "5px";
-
-      btnUpdate.innerHTML = "Edit";
-      btnUpdate.setAttribute("value", "update");
-      btnUpdate.setAttribute("onclick", `updateData(${i})`);
-      btnUpdate.style.marginRight = "5px";
-
-      tbdataActionBtn.appendChild(btnDelete);
-      tbdataActionBtn.appendChild(btnUpdate);
-
-      tblRow.appendChild(tbdataFname);
-      tblRow.appendChild(tbdataMname);
-      tblRow.appendChild(tbdataLname);
-      tblRow.appendChild(tbdataAge);
-      tblRow.appendChild(tbdataActionBtn);
-
-      tblBody.appendChild(tblRow);
-    });
-
-    tblRecords.appendChild(tblBody);
-  } else {
+if (recordsArray.length === 0) {
     document.getElementById("status").style.display = "inline";
     document.getElementById("status").innerHTML = "No Records...";
-  }
+} else {
+    document.getElementById("status").style.display = "none";
 }
 
-function deleteData(i) {
-  arrRecords.splice(i, 1);
-  iterateRecords();
-  sorting();
+insertUpdateBtn.addEventListener("click", () => {
+    const inputFields = document.getElementsByTagName("input");
+
+    if(insertUpdateBtn.value === "insert") {
+        for(const field of inputFields) {
+            if(field.value.trim() === "") {
+                alert("Please complete all the text inputs!");
+                return;
+            }
+        }
+
+        let record = {
+            firstName: inputFields[0].value.trim(),
+            middleName: inputFields[1].value.trim(),
+            lastName: inputFields[2].value.trim(),
+            age:   parseInt(inputFields[3].value.trim())      
+        };
+    
+        for(const field of inputFields) {
+            field.value = "";
+        }
+      
+        recordsArray.push(record);
+
+        sortAndDisplayRecords();
+        iterateRecords();
+    } else {
+        for(const field of inputFields) {
+            if(field.value.trim() === "") {
+                alert("Please complete all the text inputs!");
+                return;
+            }
+        }
+        recordsArray[parseInt(insertUpdateBtn.value)].firstName = inputFields[0].value.trim();
+        recordsArray[parseInt(insertUpdateBtn.value)].middleName = inputFields[1].value.trim();
+        recordsArray[parseInt(insertUpdateBtn.value)].lastName = inputFields[2].value.trim();
+        recordsArray[parseInt(insertUpdateBtn.value)].age = parseInt(inputFields[3].value.trim());
+        
+        iterateRecords();
+
+        for(const field of inputFields) {
+            field.value = "";
+        }
+
+        insertUpdateBtn.innerHTML = "Insert";
+        insertUpdateBtn.value = "insert";
+    }
+});
+
+clearFieldsBtn.addEventListener("click", () => {
+    const inputFields = document.getElementsByTagName("input");
+
+    for(const field of inputFields) {
+        field.value = "";
+    }
+
+    insertUpdateBtn.innerHTML = "Insert";
+    insertUpdateBtn.value = "insert";
+});
+
+clearRecordsBtn.addEventListener("click", () => {
+    recordsArray = [];
+    localStorage.clear();
+
+    while(tableRecords.hasChildNodes()) {
+        tableRecords.removeChild(tableRecords.firstChild);
+    }
+
+    document.getElementById("status").style.display = "inline";
+    document.getElementById("status").innerHTML = "No Records...";
+
+    insertUpdateBtn.innerHTML = "Insert";
+    insertUpdateBtn.value = "insert";
+
+});
+
+saveBtn.addEventListener("click", () => {
+    localStorage.setItem('records', JSON.stringify(recordsArray));
+});
+
+sortCriteriaDropdown.addEventListener("click", () => {
+    sortAndDisplayRecords();
+});
+
+sortOrderDropdown.addEventListener("click", () => {
+    sortAndDisplayRecords();
+});
+
+function sortAndDisplayRecords() {
+    const sortCriteria = sortCriteriaDropdown.value;
+    const sortOrder = sortOrderDropdown.value;
+    if (sortCriteria && sortOrder) {
+        sortRecords(sortCriteria, sortOrder);
+        iterateRecords();
+    }
 }
 
-function updateData(i) {
-  const inputTxt = document.getElementsByTagName("input");
+function sortRecords(criteria, order) {
+    recordsArray.sort((a, b) => {
+        const valueA = a[criteria];
+        const valueB = b[criteria];
+        if (order === "asc") {
+            if (valueA < valueB) return -1;
+            if (valueA > valueB) return 1;
+            return 0;
+        } else if (order === "desc") {
+            if (valueA > valueB) return -1;
+            if (valueA < valueB) return 1;
+            return 0;
+        }
+    });
+}
 
-  inputTxt[0].value = arrRecords[i].fname;
-  inputTxt[1].value = arrRecords[i].mname;
-  inputTxt[2].value = arrRecords[i].lname;
-  inputTxt[3].value = arrRecords[i].age;
+function iterateRecords() {
+    while (tableRecords.hasChildNodes()) {
+        tableRecords.removeChild(tableRecords.firstChild);
+    }
 
-  btnInsertUpdate.innerHTML = "Update";
-  btnInsertUpdate.value = `${i}`;
+    if (recordsArray.length > 0) {
+        document.getElementById("status").style.display = "none";
+
+        const tableHeaderRow = document.createElement("tr");
+        const tableHeader = document.createElement("thead");
+        tableHeaderRow.style.borderTop = "1px solid black";
+        tableHeaderRow.style.borderBottom = "1px solid black";
+
+        for (let i = 0; i < 5; i++) {
+            const tableHeaderCell = document.createElement("th");
+            tableHeaderCell.style.padding = "5px";
+
+            if (i !== 4) {
+                tableHeaderCell.style.borderRight = "1px solid black";
+            }
+
+            tableHeaderCell.innerHTML = tableHeaderLabels[i];
+            tableHeaderRow.appendChild(tableHeaderCell);
+        }
+
+        tableHeader.appendChild(tableHeaderRow);
+        tableRecords.appendChild(tableHeader);
+
+        const tableBody = document.createElement("tbody");
+
+        recordsArray.forEach((rec, i) => {
+
+            const tableRow = document.createElement("tr");
+            const firstNameCell = document.createElement("td");
+            const middleNameCell = document.createElement("td");
+            const lastNameCell = document.createElement("td");
+            const ageCell = document.createElement("td");
+            const actionBtnCell = document.createElement("td");
+            const deleteBtn = document.createElement("button");
+            const updateBtn = document.createElement("button");
+
+            firstNameCell.style.borderRight = "1px solid black";
+            firstNameCell.style.padding = "10px";
+
+            middleNameCell.style.borderRight = "1px solid black";
+            middleNameCell.style.padding = "10px";
+
+            lastNameCell.style.borderRight = "1px solid black";
+            lastNameCell.style.padding = "10px";
+
+            ageCell.style.borderRight = "1px solid black";
+            ageCell.style.padding = "10px";
+
+            actionBtnCell.style.padding = "10px";
+
+            tableRow.style.borderBottom = "1px solid black";
+
+            firstNameCell.innerHTML = rec.firstName;
+            middleNameCell.innerHTML = rec.middleName;
+            lastNameCell.innerHTML = rec.lastName;
+            ageCell.innerHTML = rec.age;
+
+            deleteBtn.innerHTML = "Delete";
+            deleteBtn.setAttribute("onclick", `deleteData(${i})`);
+            deleteBtn.style.marginRight = "5px";
+
+            updateBtn.innerHTML = "Edit";
+            updateBtn.setAttribute("value", "update");
+            updateBtn.setAttribute("onclick", `updateData(${i})`);
+            updateBtn.style.marginRight = "5px";
+
+            actionBtnCell.appendChild(deleteBtn);
+            actionBtnCell.appendChild(updateBtn);
+
+            tableRow.appendChild(firstNameCell);
+            tableRow.appendChild(middleNameCell);
+            tableRow.appendChild(lastNameCell);
+            tableRow.appendChild(ageCell);
+            tableRow.appendChild(actionBtnCell);
+
+            tableBody.appendChild(tableRow);
+        });
+
+        tableRecords.appendChild(tableBody);
+
+    } else {
+        document.getElementById("status").style.display = "inline";
+        document.getElementById("status").innerHTML = "No Records...";
+    }
+}
+
+function deleteData(index) {
+    recordsArray.splice(index, 1);
+    iterateRecords();
+}
+
+function updateData(index) {
+    const inputFields = document.getElementsByTagName("input");
+
+    inputFields[0].value = recordsArray[index].firstName;
+    inputFields[1].value = recordsArray[index].middleName;
+    inputFields[2].value = recordsArray[index].lastName;
+    inputFields[3].value = recordsArray[index].age;
+
+    insertUpdateBtn.innerHTML = "Update";
+    insertUpdateBtn.value = `${index}`;
 }
